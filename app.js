@@ -556,7 +556,8 @@ function openSettings() {
     </div>
     <input type="file" id="file" accept="application/json,.json" hidden>
     <button class="btn danger block" id="wipe">Borrar todos mis datos</button>
-    <p class="small" style="text-align:center;margin-top:14px">Mi Vida · v15</p>`, s => {
+    <button class="btn ghost block" id="upd" style="margin-top:14px">🔄 Buscar actualización</button>
+    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v16</p>`, s => {
     const f = $('#f', s);
     f.addEventListener('submit', e => {
       e.preventDefault();
@@ -564,6 +565,15 @@ function openSettings() {
       save(); closeSheet(); render(); toast('Ajustes guardados');
     });
     $('#pin', s).addEventListener('click', () => openPinSetup());
+    $('#upd', s).addEventListener('click', async () => {
+      toast('Buscando actualización…');
+      try {
+        const reg = await navigator.serviceWorker?.getRegistration();
+        await reg?.update();
+        const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k)));
+      } catch {}
+      setTimeout(() => location.reload(), 600);
+    });
     $('#bud', s).addEventListener('click', () => openBudgets());
     $('#exp', s).addEventListener('click', async () => { closeSheet(); return doBackup();
       const name = `mivida-respaldo-${today()}.json`;
@@ -603,7 +613,17 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && today() !== lastDay) { lastDay = today(); render(); }
 });
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    // Busca versión nueva cada vez que vuelves a la app
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+  }).catch(() => {});
+  // Cuando se instala una versión nueva, recarga una sola vez para usarla
+  let reloaded = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloaded || document.querySelector('.sheet:not([hidden])')) return;
+    reloaded = true; location.reload();
+  });
 }
 // Pedir almacenamiento persistente (ayuda a que el navegador no borre los datos)
 navigator.storage?.persist?.().catch(() => {});
