@@ -332,3 +332,6 @@ button.card { font: inherit; color: inherit; }
 .lvl-mini { width: 100%; }
 .ord { width: 34px; height: 34px; border-radius: 10px; border: 0; background: var(--bg); font-size: 16px; font-weight: 700; }
 .ord:disabled { opacity: .3; }
+
+.ord.del { background: color-mix(in srgb, var(--red) 12%, var(--bg)); }
+.list li .ord { flex: none; }

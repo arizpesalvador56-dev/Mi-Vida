@@ -1,7 +1,7 @@
 'use strict';
 /* ============ Hábitos: calendario y resumen ============ (se carga después de more.js y antes de app.js) */
 
-let habMonth = null, habDay = null;          // calendario
+let habMonth = null, habDay = null, habEdit = false;          // calendario
 let habPeriod = 'semana', habRef = null;      // resumen
 
 const habStart = h => h.created || '2000-01-01';
@@ -38,8 +38,14 @@ function viewHabitos() {
       <div class="stat"><div class="lbl">Este mes</div><div class="val">${periodPct(...monthRange(mkey())) ?? 0}%</div></div>
     </div></div>` : ''}
     <div class="card">
-      <h2>Hoy</h2>
-      ${total ? `<ul class="list">${db.habits.map(habitRow).join('')}</ul>`
+      <h2>${habEdit ? 'Editar hábitos' : 'Hoy'} ${total ? `<button class="link" data-act="habEdit">${habEdit ? 'Listo' : '✏️ Editar'}</button>` : ''}</h2>
+      ${total && habEdit ? `<div class="small" style="margin-bottom:4px">Cambia el orden con las flechas, toca el nombre para editarlo o 🗑️ para eliminarlo.</div><ul class="list">${db.habits.map((h, i) => `<li>
+        <div class="emoji">${esc(h.emoji || '✅')}</div>
+        <div class="grow" data-act="editHabit" data-id="${h.id}"><div class="t">${esc(h.name)}</div><div class="s">Toca para cambiar nombre o ícono</div></div>
+        <button class="ord" data-act="habMove" data-id="${i}|-1" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button>
+        <button class="ord" data-act="habMove" data-id="${i}|1" ${i === total - 1 ? 'disabled' : ''} aria-label="Bajar">↓</button>
+        <button class="ord del" data-act="habDel" data-id="${h.id}" aria-label="Eliminar">🗑️</button></li>`).join('')}</ul>`
+      : total ? `<ul class="list">${db.habits.map(habitRow).join('')}</ul>`
         : `<div class="empty">Crea hábitos como tomar agua, leer 10 minutos o dormir antes de las 11.<br>Se repiten solos cada día: solo los marcas.</div>`}
     </div>
     <div class="row" style="margin-bottom:14px">
@@ -184,6 +190,9 @@ Object.assign(MORE_PARENT, { habresumen: 'habitos' });
 Object.assign(MORE_VIEWS, { habitos: viewHabitos, habresumen: viewHabResumen });
 Object.assign(MORE_ACTIONS, {
   habDay: k => { habDay = k; render(); },
+  habEdit: () => { habEdit = !habEdit; render(); },
+  habMove: ref => { const [i, d] = ref.split('|').map(Number); const j = i + d; if (j < 0 || j >= db.habits.length) return; [db.habits[i], db.habits[j]] = [db.habits[j], db.habits[i]]; save(); render(); },
+  habDel: async id => { const h = db.habits.find(x => x.id === id); if (!h) return; if (!(await ask(`¿Eliminar "${h.name}" y todo su historial?`, 'Sí, eliminar'))) return; db.habits = db.habits.filter(x => x.id !== id); save(); render(); toast('Hábito eliminado'); },
   habMonth: n => { const [y, m] = (habMonth || mkey()).split('-').map(Number); const nk = mkey(new Date(y, m - 1 + +n, 1)); habMonth = nk > mkey() ? mkey() : nk; render(); },
   habToggleDay: ref => { const [id, k] = ref.split('|'); toggleHabitOn(id, k); },
   habPeriod: p => { habPeriod = p; habRef = null; render(); },
