@@ -232,6 +232,7 @@ function sFinanzas() {
       <button data-act="payDebt"><span class="fic c">${ico('card')}</span>Pago deuda</button>
       <button data-act="addTx" data-id="gasto"><span class="fic r">${ico('note')}</span>Gasto</button>
     </div>
+    ${typeof walletsSection === "function" ? walletsSection() : ""}
     <div class="scard sunday ${recon ? 'due' : ''}">
       <span class="sq">${ico('scale')}</span>
       <div class="grow"><b>Cuadre del domingo</b><small>${recon ? `Revisa que tengas ${mxn(cash)} de verdad` : `La app calcula ${mxn(cash)}. ¿Cuadra?`}</small></div>

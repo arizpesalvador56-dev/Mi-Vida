@@ -1,7 +1,7 @@
 // Service worker: guarda la app para que funcione sin internet.
 const CACHE = 'mivida-v17';
 const ASSETS = [
-  './', './index.html', './styles.css', './plan.js', './more.js', './habits.js', './home.js', './game.js', './extras.js', './v2.js', './app.js', './stitch.js', './manifest.webmanifest', './fonts/plus-jakarta-sans-latin.woff2', './fonts/plus-jakarta-sans-latin-ext.woff2',
+  './', './index.html', './styles.css', './plan.js', './more.js', './habits.js', './home.js', './game.js', './extras.js', './v2.js', './app.js', './stitch.js', './wallets.js', './manifest.webmanifest', './fonts/plus-jakarta-sans-latin.woff2', './fonts/plus-jakarta-sans-latin-ext.woff2',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 

@@ -830,3 +830,38 @@ body.main-tab .topbar h1 { font-size: 21px; font-weight: 700; }
 .jar-btns button .ic { width: 16px; height: 16px; stroke-width: 2.6; }
 .jar-btns .dep { color: var(--accent); border: 1px solid rgb(16 185 129 / .45); }
 .jar-btns .wd { color: #9aa3b5; border: 1px solid #2c3343; }
+
+/* ===== Cuentas / tarjetas ===== */
+.wscroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -16px 14px; padding: 2px 16px 8px; scrollbar-width: none; }
+.wscroll::-webkit-scrollbar { display: none; }
+.wcard { position: relative; overflow: hidden; flex: none; width: 82%; max-width: 330px; aspect-ratio: 1.586; scroll-snap-align: start; border: 0; border-radius: 20px; padding: 16px 18px; color: #fff; text-align: left; display: flex; flex-direction: column; box-shadow: 0 10px 28px rgb(0 0 0 / .35), inset 0 1px 0 rgb(255 255 255 / .18); }
+.wcard::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 80% at 100% 0%, rgb(255 255 255 / .22), transparent 55%), radial-gradient(80% 60% at 0% 100%, rgb(0 0 0 / .25), transparent 60%); pointer-events: none; }
+.wcard::after { content: ""; position: absolute; width: 220px; height: 220px; right: -70px; bottom: -110px; border-radius: 50%; border: 28px solid rgb(255 255 255 / .06); pointer-events: none; }
+.wcard > * { position: relative; z-index: 1; }
+.wc-top { display: flex; justify-content: space-between; align-items: center; }
+.wc-kind { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.wc-chip { width: 36px; height: 27px; border-radius: 6px; background: linear-gradient(135deg, #fde68a, #d4a017 55%, #fbbf24); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .15); }
+.wc-ico { font-size: 22px; }
+.wc-name { font-size: 16px; font-weight: 700; margin-top: 10px; text-shadow: 0 1px 2px rgb(0 0 0 / .2); }
+.wc-bal { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; margin-top: auto; text-shadow: 0 1px 3px rgb(0 0 0 / .25); }
+.wc-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 14px; font-weight: 600; letter-spacing: .12em; opacity: .9; }
+.wc-logo { display: flex; } .wc-logo i { width: 22px; height: 22px; border-radius: 50%; background: rgb(255 255 255 / .55); } .wc-logo i + i { margin-left: -9px; background: rgb(255 255 255 / .3); }
+.wcard.add { background: var(--card); border: 1.5px dashed #3a4256; box-shadow: none; align-items: center; justify-content: center; gap: 8px; color: var(--text); width: 46%; }
+.wcard.add::before, .wcard.add::after { display: none; }
+.wcard.add small { color: var(--muted); font-size: 12px; }
+.wpick { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.wpick::-webkit-scrollbar { display: none; }
+.wpick button { flex: none; min-width: 92px; display: flex; flex-direction: column; align-items: center; gap: 1px; border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 600; }
+.wpick button b { font-size: 18px; } .wpick button small { font-size: 11px; color: var(--muted); font-weight: 500; }
+.wpick button.on { border-color: var(--accent); background: var(--accent-soft); }
+.wkind { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.wkind button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 12px; padding: 8px 2px; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.wkind button b { font-size: 20px; } .wkind button.on { border-color: var(--accent); background: var(--accent-soft); }
+.wcolors { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.wcolors button { aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .15); }
+.wcolors button.on { border-color: #fff; box-shadow: 0 0 0 3px var(--accent); }
+.wprev { display: flex; justify-content: center; margin: 4px 0 16px; }
+.wprev .wcard { width: 100%; max-width: 320px; }
+.wdet { position: relative; border-radius: 20px; padding: 18px; color: #fff; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 10px 28px rgb(0 0 0 / .35); }
+.wdet b { font-size: 18px; } .wdet small { opacity: .85; font-size: 12.5px; }
+.wdet .wc-bal { margin-top: 10px; }
