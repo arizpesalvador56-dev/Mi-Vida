@@ -169,6 +169,7 @@ function planWeekCard(P) {
 }
 
 function planAlert(P) {
+  if (!db.plan.items.length && !(db.bills || []).length) return '';
   if (P.firstNeg) {
     return `<div class="card" style="border:2px solid var(--red)">
       <h2 style="color:var(--red)">⚠️ El plan no alcanza</h2>
@@ -210,7 +211,12 @@ function viewPlan() {
   const totalAll = r2(debts.reduce((a, d) => a + d.total, 0));
   const weeksKeys = Object.keys(P.weeks);
 
+  const intro = db.plan.items.length ? '' : `<div class="card">
+      <h2>👋 Arma tu plan</h2>
+      <div class="small">1. Toca <b>Corregir dinero</b> y escribe cuánto tienes hoy.<br>2. Toca <b>Ajustar gasto semanal</b> y pon cuánto puedes gastar por semana.<br>3. Agrega tus ingresos con <b>+ Ingreso</b> (puedes hacer que se repitan cada semana o cada mes).<br>4. Agrega lo que debes con <b>+ Nueva deuda</b>. La app calcula día por día si te alcanza.</div>
+    </div>`;
   return `
+    ${intro}
     ${planAlert(P)}
     ${planWeekCard(P)}
     <div class="card">
@@ -238,6 +244,7 @@ function viewPlan() {
         <div class="s">${d.pending ? `Siguiente: ${shortD(d.next.date)} · ${mxn(d.next.amount)} · Último pago ${shortD(d.last)}` : `Pagada el ${shortD(d.last)}`}</div></div>
         <div class="amt">${d.pending ? mxn(d.pending) : 'Pagada'}</div></li>`).join('')}</ul>
     </div>
+    ${db.plan.items.length ? `
     <div class="card">
       <h2>Semana por semana</h2>
       <div class="small" style="margin-bottom:6px">Dinero al domingo si gastas justo tu máximo. Meta = la del plan original.</div>
@@ -248,7 +255,7 @@ function viewPlan() {
           <div class="amt ${p < 0 ? 'neg' : ok ? '' : ''}" style="${!ok && p >= 0 ? 'color:var(--amber)' : ''}">${mxn(p)}</div></li>`;
       }).join('')}</ul>
       <div class="small" style="margin-top:8px">Al ${shortD(db.plan.end)} quedarías sin deudas y con unos <b>${mxn(Math.round(P.cash))}</b>${P.cash >= 0 ? ' ahorrados' : ''}, sin contar recargos por atraso.</div>
-    </div>`;
+    </div>` : ''}`;
 }
 
 /* Tarjeta compacta para Inicio */
@@ -302,6 +309,10 @@ function openPlanItem(id, kind = 'pago') {
         <label class="field"><span>Monto</span><input name="amount" type="number" inputmode="decimal" step="0.01" min="0" value="${i?.amount ?? ''}" required></label>
         <label class="field"><span>Fecha</span><input name="date" type="date" value="${i?.date || today()}" required></label>
       </div>
+      ${i ? '' : `<div class="row2">
+        <label class="field"><span>Se repite</span><select name="rep"><option value="no">No, solo una vez</option><option value="semanal">Cada semana</option><option value="quincenal">Cada 2 semanas</option><option value="mensual">Cada mes</option></select></label>
+        <label class="field"><span>Hasta</span><input name="until" type="date" value="${db.plan.end}"></label>
+      </div>`}
       <label class="field"><span>Nota (opcional)</span><input name="note" maxlength="80" value="${esc(i?.note || '')}"></label>
       ${i?.done ? '<p class="small">Ya está marcado como hecho. Si cambias el monto, desmárcalo y vuelve a marcarlo.</p>' : ''}
       <button class="btn block">Guardar y recalcular</button>
@@ -314,7 +325,22 @@ function openPlanItem(id, kind = 'pago') {
       const amount = r2(parseFloat(f.amount.value));
       if (!(amount > 0)) { toast('Escribe un monto'); return; }
       const data = { name: f.name.value.trim(), amount, date: f.date.value, note: f.note.value.trim() };
-      if (i) Object.assign(i, data); else db.plan.items.push({ id: uid(), kind, done: false, ...data });
+      if (i) Object.assign(i, data);
+      else {
+        const rep = f.rep ? f.rep.value : 'no', until = f.until?.value || db.plan.end;
+        const first = parseD(data.date);
+        for (let k = 0; k < 120; k++) {
+          let d;
+          if (rep === 'semanal') d = addDays(first, 7 * k);
+          else if (rep === 'quincenal') d = addDays(first, 14 * k);
+          else if (rep === 'mensual') { d = new Date(first.getFullYear(), first.getMonth() + k, 1); d.setDate(Math.min(first.getDate(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
+          else if (k) break; else d = first;
+          if (k && dkey(d) > until) break;
+          db.plan.items.push({ id: uid(), kind, done: false, ...data, date: dkey(d) });
+        }
+      }
+      const last = db.plan.items.map(x => x.date).sort().pop();
+      if (last && last > db.plan.end) db.plan.end = last;
       save(); closeSheet(); render(); toast('Plan recalculado');
     });
     $('#split', s)?.addEventListener('click', () => {
