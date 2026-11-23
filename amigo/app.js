@@ -201,10 +201,10 @@ function blockRow(b, opts = {}) {
   const dur = toMin(b.end) - toMin(b.start);
   const badge = opts.now ? '<span class="now-badge">AHORA</span>' : opts.next ? '<span class="next-badge">SIGUE</span>' : '';
   return `<li data-act="editBlock" data-id="${b.id}">
-    <div class="time"><b>${b.start}</b>${b.end || ''}</div>
+    <div class="time"><b>${b.start}</b>${dur > 0 ? fmtDur(dur) : (b.end || '')}</div>
     <div class="blk ${opts.past ? 'past' : ''}" style="--c:${color}">
       <div class="t">${e} ${esc(b.title)}${badge}</div>
-      <div class="s">${l}${dur > 0 ? ' · ' + fmtDur(dur) : ''}${b.place ? ' · ' + esc(b.place) : ''}</div>
+      <div class="s">${l}${b.end ? ' · hasta ' + b.end : ''}${b.place ? ' · ' + esc(b.place) : ''}</div>
     </div>
   </li>`;
 }
@@ -227,7 +227,7 @@ function agendaCard() {
   const st = blockState(list, true);
   // mostrar lo que está pasando y lo que sigue (máx 4), ocultando lo ya terminado
   const items = list.map((b, i) => [b, st[i]]).filter(([, s]) => !s.past).slice(0, 4);
-  return `<div class="card"><h2>Agenda de hoy <button class="link" data-act="go" data-id="rutina">Ver día</button></h2>
+  return `<div class="card"><h2>Agenda de hoy <button class="link badge" data-act="go" data-id="rutina">${list.length} ${list.length === 1 ? 'actividad' : 'actividades'}</button></h2>
     ${items.length ? `<ul class="list timeline">${items.map(([b, s]) => blockRow(b, s)).join('')}</ul>` : '<div class="empty">Terminaste todo lo de hoy 🎉</div>'}</div>`;
 }
 
@@ -239,13 +239,15 @@ function viewRutina() {
   for (const b of list) { const d = toMin(b.end) - toMin(b.start); if (d > 0) mins[b.type] = (mins[b.type] || 0) + d; }
   const sum = Object.entries(mins).sort((a, b) => b[1] - a[1]);
   return `
-    <div class="days">${DAYS.map((d, i) => `<button class="${i === rutDay ? 'on' : ''} ${i === td ? 'today' : ''}" data-act="rutDay" data-id="${i}">${d}<small>${i === td ? 'hoy' : '&nbsp;'}</small></button>`).join('')}</div>
+    <div class="days">${DAYS.map((d, i) => { const dt = addDays(parseD(weekMon(today())), i); return `<button class="${i === rutDay ? 'on' : ''} ${i === td ? 'today' : ''}" data-act="rutDay" data-id="${i}">${d}<b>${dt.getDate()}</b><small class="${dayBlocks(i).length ? 'has' : ''}"></small></button>`; }).join('')}</div>
+    ${sum.length ? (() => { const tot = sum.reduce((a, x) => a + x[1], 0); return `<div class="card"><h2>Tiempo del día <span class="badge-pill">${fmtDur(tot)} planeadas</span></h2>
+      <div class="stack">${sum.map(([t, m]) => `<i style="width:${m / tot * 100}%;background:${rtype(t)[3]}"></i>`).join('')}</div>
+      <div class="alloc">${sum.map(([t, m]) => { const [, e, l, c] = rtype(t); return `<div><i style="background:${c}"></i><span>${l}</span><b>${fmtDur(m)}</b></div>`; }).join('')}</div></div>`; })() : ''}
     <div class="card">
-      <h2>${DAYS_FULL[rutDay]} <span class="small">${list.length} actividad${list.length === 1 ? '' : 'es'}</span></h2>
+      <h2>${DAYS_FULL[rutDay]} <button class="link badge" data-act="addBlock">+ Agregar</button></h2>
       ${list.length ? `<ul class="list timeline">${list.map((b, i) => blockRow(b, st[i])).join('')}</ul>`
         : `<div class="empty">Nada para este día.<br>Agrega tus clases, trabajo, comidas o ejercicio con su hora.</div>`}
     </div>
-    ${sum.length ? `<div class="card"><h2>Tiempo del día</h2>${sum.map(([t, m]) => { const [, e, l] = rtype(t); return `<div class="catrow"><div class="top"><span>${e} ${l}</span><span class="amt">${fmtDur(m)}</span></div></div>`; }).join('')}</div>` : ''}
     <button class="fab" data-act="addBlock" aria-label="Agregar actividad">+</button>`;
 }
 
@@ -341,17 +343,18 @@ function viewFinanzas() {
   }).join('');
 
   return `
-    <div class="card">
-      <div class="stats">
-        <div class="stat"><div class="lbl">Dinero hoy</div><div class="val">${mxn(planCash())}</div></div>
-        <div class="stat"><div class="lbl">Puedes gastar</div><div class="val ${wleft < 0 ? 'neg' : 'pos'}">${mxn(Math.max(0, wleft))}</div></div>
-        <div class="stat" data-act="editBudgets" style="cursor:pointer"><div class="lbl">Máx. semana ✏️</div><div class="val">${mxn(wmax)}</div></div>
+    <div class="hero">
+      <div class="hero-lbl">Dinero hoy</div>
+      <div class="hero-val">${mxn(planCash())}</div>
+      <div class="hero-pills">
+        <span class="pill ${wleft < 0 ? 'bad' : 'good'}">Puedes gastar ${mxn(Math.max(0, wleft))}</span>
+        <button class="pill" data-act="editBudgets">Máx. semana ${mxn(wmax)} ✏️</button>
       </div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn ghost" data-act="addTx" data-id="ingreso">+ Ingreso</button>
-        <button class="btn ghost" data-act="addTx" data-id="gasto">+ Gasto</button>
-      </div>
-      <button class="btn ghost block" style="margin-top:8px" data-act="payDebt">💳 Registrar pago de deuda</button>
+    </div>
+    <div class="tiles">
+      <button data-act="addTx" data-id="ingreso"><i class="ico in">↗</i>Ingreso</button>
+      <button data-act="addTx" data-id="gasto"><i class="ico out">↙</i>Gasto</button>
+      <button data-act="payDebt"><i class="ico">💳</i>Pago deuda</button>
     </div>
     <div class="card">
       <h2>Ingresos programados <button class="link" data-act="go" data-id="deudas">Ver plan</button></h2>
@@ -557,7 +560,7 @@ function openSettings() {
     <input type="file" id="file" accept="application/json,.json" hidden>
     <button class="btn danger block" id="wipe">Borrar todos mis datos</button>
     <button class="btn ghost block" id="upd" style="margin-top:14px">🔄 Buscar actualización</button>
-    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v1</p>`, s => {
+    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v2</p>`, s => {
     const f = $('#f', s);
     f.addEventListener('submit', e => {
       e.preventDefault();

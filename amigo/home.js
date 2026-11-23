@@ -14,9 +14,8 @@ function homeHabits() {
   if (!db.habits.length) return `<div class="card"><h2>Hábitos de hoy</h2><div class="empty">Aún no tienes hábitos.<br><button class="link" data-act="addHabit">+ Crear mi primer hábito</button></div></div>`;
   const done = db.habits.filter(h => h.log[t]).length;
   return `<div class="card">
-    <h2>Hábitos de hoy <button class="link" data-act="go" data-id="habitos">${done}/${db.habits.length} · Ver</button></h2>
-    <div class="bar" style="margin:0 0 6px"><i style="width:${done / db.habits.length * 100}%;background:var(--green)"></i></div>
-    <ul class="list">${db.habits.map(habitRow).join('')}</ul>
+    <h2>Hábitos de hoy <button class="link badge" data-act="go" data-id="habitos">${done} / ${db.habits.length} hechos</button></h2>
+    <div class="hchips">${db.habits.map(h => `<button class="hchip ${h.log[t] ? 'on' : ''}" data-act="habit" data-id="${h.id}" aria-label="Marcar ${esc(h.name)}"><i></i><span>${esc(h.emoji || '')} ${esc(h.name)}</span></button>`).join('')}</div>
   </div>`;
 }
 
@@ -88,15 +87,15 @@ function homeReflect() {
   const hr = new Date().getHours();
   if (wday() >= 5) out.push(`<button class="card prompt" data-act="go" data-id="revision"><span class="emoji">📊</span><span><b>Tu revisión semanal está lista</b><small>Mira cómo te fue esta semana.</small></span></button>`);
   const focus = db.reviews?.[dkey(addDays(parseD(weekMon(t)), -7))]?.focus;
-  if (focus) out.push(`<div class="card"><h2>Tu prioridad de la semana</h2><div>⭐ ${esc(focus)}</div></div>`);
+  if (focus) out.push(`<div class="card priority"><div class="pri-head"><span class="pri-ico">⚑</span>Prioridad de la semana</div><div class="pri-t">${esc(focus)}</div></div>`);
   return out.join('');
 }
 
 function homeNotes() {
   const notes = [...db.notes].sort((a, b) => (b.pinned - a.pinned) || (b.updated - a.updated)).slice(0, 2);
   if (!notes.length) return '';
-  return `<div class="card"><h2>Notas recientes <button class="link" data-act="go" data-id="notas">Ver todas</button></h2><ul class="list">${notes.map(n => `
-    <li data-act="editNote" data-id="${n.id}"><div class="grow"><div class="t">${n.pinned ? '📌 ' : ''}${esc(n.title || 'Sin título')}</div><div class="s">${esc(n.body.slice(0, 80))}</div></div></li>`).join('')}</ul></div>`;
+  return `<div class="card"><h2>Notas recientes <button class="link badge" data-act="go" data-id="notas">Ver todas</button></h2><div class="notes">${notes.map(n => `
+    <button class="note" data-act="editNote" data-id="${n.id}"><span class="t">${n.pinned ? '📌 ' : ''}${esc(n.title || 'Sin título')}</span><span class="b">${esc(n.body.slice(0, 80))}</span></button>`).join('')}</div></div>`;
 }
 
 function viewInicioNew() {

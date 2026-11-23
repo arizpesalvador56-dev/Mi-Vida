@@ -118,9 +118,19 @@ function viewMasGrouped() {
     ]],
   ];
   const item = ([k, e, ti, s]) => `<button class="menu-item" data-act="go" data-id="${k}"><span class="emoji">${e}</span><span class="grow"><b>${ti}</b><small>${esc(s)}</small></span><span class="chev">›</span></button>`;
+  const tile = ([k, e, ti, s]) => `<button class="mtile" data-act="go" data-id="${k}"><span class="emoji">${e}</span><b>${ti}</b><small>${esc(s)}</small></button>`;
+  const a = xpForLevel(G.level), b = xpForLevel(G.level + 1);
+  const ch = weekChallenges(weekMon(t));
   return `
-    <button class="menu-item lvl-mini" data-act="go" data-id="logros"><span class="lvl-badge" style="width:40px;height:40px;font-size:18px;border-radius:12px">${G.level}</span><span class="grow"><b>Logros y premios</b><small>${levelTitle(G.level)} · 🪙 ${G.coins} monedas</small></span><span class="chev">›</span></button>
-    ${groups.map(([title, items]) => `<div class="menu-group"><h4>${title}</h4><div class="menu">${items.map(item).join('')}</div></div>`).join('')}`;
+    <div class="card tier">
+      <div class="tier-top"><span class="lvl-badge">${G.level}</span>
+        <span class="grow"><b>${levelTitle(G.level)}</b><small>Nivel ${G.level} · 🪙 ${G.coins} monedas</small></span>
+        <button class="btn sm" data-act="go" data-id="logros">🎁 Premios</button></div>
+      <div class="tier-xp"><span>Progreso XP</span><span><b>${G.xp - a}</b> / ${b - a}</span></div>
+      <div class="bar"><i style="width:${(G.xp - a) / (b - a) * 100}%"></i></div>
+      <button class="tier-ch" data-act="go" data-id="logros"><span class="emoji">🔥</span><span class="grow"><b>Retos semanales</b><small>${ch.filter(c => c.done).length} de ${ch.length} completados</small></span><span class="chev">›</span></button>
+    </div>
+    ${groups.map(([title, items], gi) => `<div class="menu-group"><h4>${title}<span>${items.length}</span></h4>${gi === 3 ? `<div class="mtiles">${items.map(tile).join('')}</div>` : `<div class="menu">${items.map(item).join('')}</div>`}</div>`).join('')}`;
 }
 
 /* ---------- Inicio personalizable ---------- */
@@ -161,12 +171,15 @@ function viewInicioV2() {
     </div>` : '';
   const map = Object.fromEntries(HOME_CARDS.map(c => [c[0], c[2]]));
   return `
-    <p class="greet">${saludo}${name} · ${cap(now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }))}</p>
+    <div class="hello">
+      <div><div class="hello-date">${now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' })}</div>
+      <div class="hello-t">${saludo}${name}</div></div>
+      <button class="pill custom" data-act="customizeHome">⚙︎ Personalizar</button>
+    </div>
     ${install}
     ${homeFocusCard()}
     ${homeReconcile()}
-    ${homeLayout().filter(c => c.on).map(c => map[c.id]()).join('')}
-    <button class="btn ghost block" data-act="customizeHome">⚙️ Personalizar Inicio</button>`;
+    ${homeLayout().filter(c => c.on).map(c => map[c.id]()).join('')}`;
 }
 function openCustomizeHome() {
   let layout = homeLayout();
