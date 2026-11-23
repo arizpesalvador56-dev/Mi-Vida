@@ -1,5 +1,5 @@
 // Service worker: guarda la app para que funcione sin internet.
-const CACHE = 'mivida-v17';
+const CACHE = 'mivida-v18';
 const ASSETS = [
   './', './index.html', './styles.css', './plan.js', './more.js', './habits.js', './home.js', './game.js', './extras.js', './v2.js', './app.js', './stitch.js', './wallets.js', './manifest.webmanifest', './fonts/plus-jakarta-sans-latin.woff2', './fonts/plus-jakarta-sans-latin-ext.woff2',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
@@ -11,7 +11,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('mivida-v') && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

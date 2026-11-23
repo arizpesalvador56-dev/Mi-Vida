@@ -6,7 +6,7 @@
 // El juego empieza el día que se abre la app por primera vez (settings.startDate).
 const TIERS = {
   bronce: { e: '🥉', name: 'Bronce', xp: 50, c: '#b45309' },
-  plata: { e: '🥈', name: 'Plata', xp: 150, c: '#64748b' },
+  plata: { e: '🥈', name: 'Plata', xp: 150, c: '#94a3b8' },
   oro: { e: '🥇', name: 'Oro', xp: 400, c: '#ca8a04' },
   diamante: { e: '💎', name: 'Diamante', xp: 1000, c: '#0891b2' },
 };
@@ -205,7 +205,7 @@ function gameHomeCard() {
     <div class="lvl-badge">${G.level}</div>
     <div class="grow">
       <div class="lvl-top"><b>${levelTitle(G.level)}</b><span>🪙 ${G.coins}</span></div>
-      <div class="bar" style="margin:6px 0 4px"><i style="width:${(G.xp - a) / (b - a) * 100}%;background:linear-gradient(90deg,#f59e0b,#f97316)"></i></div>
+      <div class="bar" style="margin:6px 0 4px"><i style="width:${(G.xp - a) / (b - a) * 100}%;background:var(--grad)"></i></div>
       <small>${G.xp - a}/${b - a} XP para nivel ${G.level + 1} · Retos ${ch.filter(c => c.done).length}/${ch.length}</small>
     </div></button>`;
 }
@@ -222,7 +222,7 @@ function viewLogros() {
     <div class="lvl-badge big">${G.level}</div>
     <div style="font-size:20px;font-weight:700;margin-top:8px">${levelTitle(G.level)}</div>
     <div class="small">${G.xp.toLocaleString('es-MX')} XP en total · ${unlocked}/${G.ach.length} logros</div>
-    <div class="bar" style="margin:10px 0 4px"><i style="width:${(G.xp - a) / (b - a) * 100}%;background:linear-gradient(90deg,#f59e0b,#f97316)"></i></div>
+    <div class="bar" style="margin:10px 0 4px"><i style="width:${(G.xp - a) / (b - a) * 100}%;background:var(--grad)"></i></div>
     <div class="small">Faltan ${b - G.xp} XP para nivel ${G.level + 1}${G.level < LEVEL_TITLES.length ? ` (${levelTitle(G.level + 1)})` : ''}</div>
     <div class="coins">🪙 ${G.coins} monedas</div>
   </div>`;
@@ -240,7 +240,7 @@ function viewLogros() {
         <li>Paso de proyecto: 20 · Revisión semanal: 40 · Reto semanal: ${CHALLENGE_XP}</li>
         <li>Logros: 🥉 50 · 🥈 150 · 🥇 400 · 💎 1,000</li>
         <li>Cada 10 XP = 🪙 1 moneda para tus premios</li></ul></div>
-      <div class="card"><h2>De dónde viene tu XP</h2>${Object.entries(G.breakdown).filter(([, v]) => v).sort((x, y) => y[1] - x[1]).map(([k, v]) => `<div class="catrow"><div class="top"><span>${k}</span><span class="amt">${v.toLocaleString('es-MX')} XP</span></div><div class="bar"><i style="width:${v / G.xp * 100}%;background:#f59e0b"></i></div></div>`).join('') || '<div class="empty">Empieza a usar la app para ganar XP.</div>'}</div>`;
+      <div class="card"><h2>De dónde viene tu XP</h2>${Object.entries(G.breakdown).filter(([, v]) => v).sort((x, y) => y[1] - x[1]).map(([k, v]) => `<div class="catrow"><div class="top"><span>${k}</span><span class="amt">${v.toLocaleString('es-MX')} XP</span></div><div class="bar"><i style="width:${v / G.xp * 100}%;background:var(--accent)"></i></div></div>`).join('') || '<div class="empty">Empieza a usar la app para ganar XP.</div>'}</div>`;
   }
 
   if (logrosTab === 'premios') {
