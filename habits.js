@@ -32,11 +32,12 @@ function viewHabitos() {
   const mk = habMonth || mkey();
   const sel = habDay || t;
   return `
-    ${total ? `<div class="card"><div class="stats">
-      <div class="stat"><div class="lbl">Hoy</div><div class="val">${done}/${total}</div></div>
-      <div class="stat"><div class="lbl">Racha activa</div><div class="val">🔥 ${best}</div></div>
-      <div class="stat"><div class="lbl">Este mes</div><div class="val">${periodPct(...monthRange(mkey())) ?? 0}%</div></div>
-    </div></div>` : ''}
+    ${total ? (() => { const pct = periodPct(...monthRange(mkey())) ?? 0; const days7 = Array.from({ length: 7 }, (_, i) => dkey(addDays(new Date(), i - 6))); return `<div class="card consist">
+      <div class="cons-top"><div><div class="hero-lbl">Constancia del mes</div><div class="cons-pct">${pct}%</div></div>
+        <div class="cons-streak"><span>🔥</span><div><small>Racha</small><b>${best} ${best === 1 ? 'día' : 'días'}</b></div></div></div>
+      <div class="cons-sub"><span>Últimos 7 días</span><b>${done} de ${total} hoy</b></div>
+      <div class="pills7">${days7.map(k => { const sc = dayScore(k); const r = sc.total ? sc.done / sc.total : 0; return `<div><span><i style="height:${Math.max(r * 100, r ? 18 : 0)}%" class="${k === t ? 'tod' : ''}"></i></span><small class="${k === t ? 'tod' : ''}">${DAYS[wday(parseD(k))][0]}</small></div>`; }).join('')}</div>
+    </div>`; })() : ''}
     <div class="card">
       <h2>${habEdit ? 'Editar hábitos' : 'Hoy'} ${total ? `<button class="link" data-act="habEdit">${habEdit ? 'Listo' : '✏️ Editar'}</button>` : ''}</h2>
       ${total && habEdit ? `<div class="small" style="margin-bottom:4px">Cambia el orden con las flechas, toca el nombre para editarlo o 🗑️ para eliminarlo.</div><ul class="list">${db.habits.map((h, i) => `<li>
