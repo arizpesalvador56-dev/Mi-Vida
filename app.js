@@ -560,7 +560,7 @@ function openSettings() {
     <input type="file" id="file" accept="application/json,.json" hidden>
     <button class="btn danger block" id="wipe">Borrar todos mis datos</button>
     <button class="btn ghost block" id="upd" style="margin-top:14px">🔄 Buscar actualización</button>
-    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v18</p>`, s => {
+    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v19</p>`, s => {
     const f = $('#f', s);
     f.addEventListener('submit', e => {
       e.preventDefault();
@@ -573,7 +573,7 @@ function openSettings() {
       try {
         const reg = await navigator.serviceWorker?.getRegistration();
         await reg?.update();
-        const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k)));
+        const keys = await caches.keys(); await Promise.all(keys.filter(k => k.startsWith('mivida-v')).map(k => caches.delete(k)));
       } catch {}
       setTimeout(() => location.reload(), 600);
     });
