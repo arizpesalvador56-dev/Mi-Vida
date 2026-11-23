@@ -557,7 +557,7 @@ function openSettings() {
     <input type="file" id="file" accept="application/json,.json" hidden>
     <button class="btn danger block" id="wipe">Borrar todos mis datos</button>
     <button class="btn ghost block" id="upd" style="margin-top:14px">🔄 Buscar actualización</button>
-    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v16</p>`, s => {
+    <p class="small" style="text-align:center;margin-top:8px">Mi Vida · v17</p>`, s => {
     const f = $('#f', s);
     f.addEventListener('submit', e => {
       e.preventDefault();
